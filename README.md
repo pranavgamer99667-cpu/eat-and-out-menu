@@ -6,11 +6,18 @@ rounded buttons, and a sparkle effect that releases as you scroll.
 
 ## Dishes
 
-| Dish | Model |
-|------|-------|
-| Signature Rice Bowl | `models/bowl-cereal.glb` |
-| Wood-Fired Pizza | `models/pizza.glb` |
-| Wok Chowmein | `models/chinese.glb` |
+| Dish | Source |
+|------|--------|
+| Signature Rice Bowl | generated at runtime (`src/dishes.js`) |
+| Wood-Fired Pizza | generated at runtime (`src/dishes.js`) |
+| Wok Chowmein | generated at runtime (`src/dishes.js`) |
+
+The dish models are **built procedurally in code** — no external model files.
+Each dish is real geometry (bowls thrown on a lathe, a pizza base and crust,
+individual rice grains, tangled noodle strands) with PBR materials whose
+albedo / normal / roughness maps are generated from seamless value-noise
+fields at load time. This keeps the site tiny and immune to missing-asset
+breakage.
 
 ## Structure
 
@@ -18,8 +25,10 @@ rounded buttons, and a sparkle effect that releases as you scroll.
 index.html      the page (loads css + js/app.js)
 css/styles.css  all styling
 js/app.js       built bundle (three.js + app code) — the only script the page loads
-models/         3 dish models + their shared texture
-src/            editable source: src/main.js and src/vendor/ (three.js modules)
+src/main.js     editable app source (viewers, sparkle engine)
+src/dishes.js   editable dish geometry + material source
+src/vendor/     three.js modules used to build the bundle
+models/         optional exported .glb versions of the three dishes
 ```
 
 The page loads a **single classic script** (`js/app.js`), not ES modules — so it
@@ -32,40 +41,35 @@ Static files, no server-side code, no build step to deploy.
 
 - **Any static host** (S3, Netlify, GitHub Pages, nginx): upload the files
   keeping the folder structure. The entry point is `index.html`.
-- **S3 note:** if the page loads but the dishes do not appear, the `.js` / `.glb`
-  files were likely uploaded with the wrong content type, or the `models/` and
-  `js/` folders were not uploaded. `js/app.js` should be `text/javascript`.
 - **Zero-dependency option:** `eat-and-out-standalone.html` is a single file with
-  the script and all 3D models embedded — it works even opened directly from
-  disk, with no other files and no server.
+  the script and styling inlined — it works even opened directly from disk,
+  with no other files and no server.
 
 ## Editing
 
 - Menu items, prices and copy: `index.html`
 - Colours, buttons, layout: `css/styles.css`
-- Behaviour (3D viewers, sparkle engine): `src/main.js`
-- To swap a dish's model, change the `data-model` attribute on its `.stage`
-  element, then rebuild the bundle (below).
+- 3D viewers and the sparkle engine: `src/main.js`
+- Dish shapes, ingredients, textures: `src/dishes.js`
+- To swap a dish, change the `data-dish` attribute on its `.stage` element
+  (`rice` / `pizza` / `chowmein`) and add a builder in `src/dishes.js`.
 
-### Rebuild the bundle after editing `src/main.js`
+### Rebuild the bundle after editing `src/`
 
 ```bash
 npx esbuild src/main.js --bundle --format=iife --minify --target=es2019 \
   --outfile=js/app.js \
   --alias:three=./src/vendor/three.module.js \
-  --alias:three/addons/loaders/GLTFLoader.js=./src/vendor/jsm/loaders/GLTFLoader.js \
-  --alias:three/addons/controls/OrbitControls.js=./src/vendor/jsm/controls/OrbitControls.js \
-  --alias:three/addons/environments/RoomEnvironment.js=./src/vendor/jsm/environments/RoomEnvironment.js
+  --alias:three/addons/controls/OrbitControls.js=./src/vendor/jsm/controls/OrbitControls.js
 ```
 
 ## Tech
 
-- [three.js](https://threejs.org/) r160 — GLTF loading, PBR environment
-  lighting, orbit controls
+- [three.js](https://threejs.org/) r160 — geometry, PBR materials, procedural
+  canvas textures, shadow mapping, orbit controls
 - Vanilla CSS/JS, no framework
 
 ## Credits & licence
 
-3D dish models from the **Kenney Food Kit** — released under **CC0 1.0**
-(public domain, commercial use permitted, no attribution required).
+Dish models and textures are original procedural code in this repository.
 three.js is MIT licensed.
