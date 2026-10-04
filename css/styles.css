@@ -233,14 +233,14 @@ section{ position:relative; }
 }
 .section-note{ color:var(--ink-mute); margin-top:16px; font-size:.98rem; }
 
-/* ---------- menu grid ---------- */
+/* ---------- menu showcase ---------- */
 .grid{
   max-width:var(--maxw); margin:0 auto;
-  display:grid; gap:30px;
-  grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+  display:flex; flex-direction:column; gap:46px;
 }
 .dish-card{
   position:relative;
+  display:grid; grid-template-columns:1.25fr .75fr; align-items:center;
   border-radius:var(--radius);
   background:
      linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.012));
@@ -248,6 +248,7 @@ section{ position:relative; }
   overflow:hidden;
   transition: transform .5s cubic-bezier(.2,.8,.2,1), border-color .5s ease, box-shadow .5s ease;
 }
+.dish-card:nth-child(even) .stage-wrap{ order:2; }
 .dish-card::before{
   content:""; position:absolute; inset:0; border-radius:inherit; padding:1px;
   background:linear-gradient(140deg, rgba(247,227,154,.55), rgba(201,205,214,.12) 40%, transparent 70%);
@@ -265,7 +266,7 @@ section{ position:relative; }
 .stage-wrap{ position:relative; }
 .stage{
   position:relative;
-  height:clamp(260px, 34vw, 340px);
+  height:clamp(320px, 40vw, 470px);
   background:
      radial-gradient(circle at 50% 118%, rgba(212,175,55,.14), transparent 62%),
      radial-gradient(circle at 50% 40%, rgba(255,255,255,.05), transparent 68%);
@@ -293,7 +294,7 @@ section{ position:relative; }
 .stage-btn.spinning svg{ animation:spin 2.4s linear infinite; }
 @keyframes spin{ to{ transform:rotate(360deg); } }
 
-.dish-body{ padding:26px 26px 30px; border-top:1px solid var(--line-soft); }
+.dish-body{ padding:40px clamp(24px,3.4vw,52px); }
 .dish-head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
 .dish-head h3{ font-size:1.42rem; letter-spacing:.01em; }
 .price{
@@ -375,6 +376,9 @@ section{ position:relative; }
   .craft-inner{ grid-template-columns:1fr; gap:40px; }
   .craft-ornament{ order:-1; min-height:230px; }
   .nav-links{ display:none; }
+  .dish-card{ grid-template-columns:1fr; }
+  .dish-card:nth-child(even) .stage-wrap{ order:0; }
+  .dish-body{ padding:28px 24px 32px; }
 }
 @media (max-width:520px){
   .hero-title{ gap:8px; }
