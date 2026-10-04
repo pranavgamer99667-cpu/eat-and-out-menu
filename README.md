@@ -12,34 +12,57 @@ rounded buttons, and a sparkle effect that releases as you scroll.
 | Wood-Fired Pizza | `models/pizza.glb` |
 | Wok Chowmein | `models/chinese.glb` |
 
-## Run locally
+## Structure
 
-The site uses ES modules and an import map, so it must be served over HTTP
-(opening `index.html` directly from disk will not work).
-
-```bash
-cd site
-python3 -m http.server 8000
-# open http://localhost:8000
 ```
+index.html      the page (loads css + js/app.js)
+css/styles.css  all styling
+js/app.js       built bundle (three.js + app code) — the only script the page loads
+models/         3 dish models + their shared texture
+src/            editable source: src/main.js and src/vendor/ (three.js modules)
+```
+
+The page loads a **single classic script** (`js/app.js`), not ES modules — so it
+works on any static host, including hosts that serve `.js` with a generic
+content type (a common cause of "blank 3D" on S3 and similar).
 
 ## Deploy
 
-Static files — no build step. On GitHub Pages, publish from the branch root.
-The entry point is `index.html` at the repository root.
+Static files, no server-side code, no build step to deploy.
+
+- **Any static host** (S3, Netlify, GitHub Pages, nginx): upload the files
+  keeping the folder structure. The entry point is `index.html`.
+- **S3 note:** if the page loads but the dishes do not appear, the `.js` / `.glb`
+  files were likely uploaded with the wrong content type, or the `models/` and
+  `js/` folders were not uploaded. `js/app.js` should be `text/javascript`.
+- **Zero-dependency option:** `eat-and-out-standalone.html` is a single file with
+  the script and all 3D models embedded — it works even opened directly from
+  disk, with no other files and no server.
 
 ## Editing
 
 - Menu items, prices and copy: `index.html`
 - Colours, buttons, layout: `css/styles.css`
-- 3D viewers and the sparkle engine: `js/main.js`
-- To swap a dish's model, change the `data-model` attribute on its `.stage` element.
+- Behaviour (3D viewers, sparkle engine): `src/main.js`
+- To swap a dish's model, change the `data-model` attribute on its `.stage`
+  element, then rebuild the bundle (below).
+
+### Rebuild the bundle after editing `src/main.js`
+
+```bash
+npx esbuild src/main.js --bundle --format=iife --minify --target=es2019 \
+  --outfile=js/app.js \
+  --alias:three=./src/vendor/three.module.js \
+  --alias:three/addons/loaders/GLTFLoader.js=./src/vendor/jsm/loaders/GLTFLoader.js \
+  --alias:three/addons/controls/OrbitControls.js=./src/vendor/jsm/controls/OrbitControls.js \
+  --alias:three/addons/environments/RoomEnvironment.js=./src/vendor/jsm/environments/RoomEnvironment.js
+```
 
 ## Tech
 
-- [three.js](https://threejs.org/) r160 (bundled in `vendor/`) — GLTF loading,
-  PBR environment lighting, orbit controls
-- Vanilla CSS/JS, no framework, no build step
+- [three.js](https://threejs.org/) r160 — GLTF loading, PBR environment
+  lighting, orbit controls
+- Vanilla CSS/JS, no framework
 
 ## Credits & licence
 
