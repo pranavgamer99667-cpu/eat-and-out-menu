@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pranavgamer99667-cpu.github.io/eat-and-out-menu/sitemap.xml
